@@ -2,7 +2,7 @@ import path from "path";
 import moment from "moment";
 import { app, dialog, Menu, Tray } from "electron";
 import packageJson from "../../../package.json";
-import { Settings } from "../../types/settings";
+import {BreaksMode, Settings} from "../../types/settings";
 import { getSettings, setSettings } from "./store";
 import { createSettingsWindow } from "./windows";
 import {
@@ -112,7 +112,7 @@ export function buildTray(): void {
     },
     {
       label: "Restart break period",
-      visible: breakTime !== null && inWorkingHours,
+      visible: breakTime !== null && inWorkingHours && settings.breaksMode === BreaksMode.Default,
       click: createBreak.bind(null, false),
     },
     { type: "separator" },

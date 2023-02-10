@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Button, Card, Switch} from "@blueprintjs/core";
 import {TimePicker} from "@blueprintjs/datetime";
-import {Settings} from "../../types/settings";
+import {BreaksMode, Settings} from "../../types/settings";
 import {Schedule} from "../../types/schedule";
 import styles from "./ScheduleForm.scss";
 
@@ -73,7 +73,7 @@ export default function ScheduleForm(props: Props): JSX.Element {
 
                     {
                         /* eslint-disable @typescript-eslint/no-explicit-any */
-                        (props.settingsDraft as any)[settingsPath] ?
+                        (props.settingsDraft as any)[settingsPath] && props.settingsDraft.breaksMode === BreaksMode.Schedule ?
                             <>
                                 <Card className={styles.schedulesCard}>
                                     {schedules.map((schedule, i) => {

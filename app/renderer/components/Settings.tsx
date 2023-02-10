@@ -1,18 +1,8 @@
 import * as React from "react";
-import {
-  Tabs,
-  Tab,
-  Switch,
-  HTMLSelect,
-  FormGroup,
-  InputGroup,
-  Intent,
-  Button,
-  Slider,
-} from "@blueprintjs/core";
-import { TimePicker, TimePrecision } from "@blueprintjs/datetime";
-import { Settings, NotificationType } from "../../types/settings";
-import { toast } from "../toaster";
+import {Button, FormGroup, HTMLSelect, InputGroup, Intent, Slider, Switch, Tab, Tabs,} from "@blueprintjs/core";
+import {TimePicker, TimePrecision} from "@blueprintjs/datetime";
+import {BreaksMode, NotificationType, Settings} from "../../types/settings";
+import {toast} from "../toaster";
 import SettingsHeader from "./SettingsHeader";
 import styles from "./Settings.scss";
 import ScheduleForm from "./ScheduleForm";
@@ -105,6 +95,13 @@ export default function SettingsEl() {
     });
   }
 
+  const handleBreaksModeChange = (
+      e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+      const breaksMode = e.target.value as BreaksMode;
+      setSettingsDraft({ ...settingsDraft, breaksMode });
+  };
+
   const handleSave = async () => {
     await ipcRenderer.invokeSetSettings(settingsDraft);
     toast("Settings saved", Intent.PRIMARY);
@@ -150,13 +147,33 @@ export default function SettingsEl() {
                     disabled={!settingsDraft.breaksEnabled}
                   />
                 </FormGroup>
+                <FormGroup label="Breaks mode">
+                  <HTMLSelect
+                    value={settingsDraft.breaksMode}
+                    options={[
+                      {
+                        value: BreaksMode.Default,
+                        label: "Default",
+                      },
+                      {
+                        value: BreaksMode.Schedule,
+                        label: "Schedule",
+                      },
+                    ]}
+                    onChange={handleBreaksModeChange}
+                    disabled={!settingsDraft.breaksEnabled}
+                  />
+                </FormGroup>
                 <FormGroup label="Break frequency" labelInfo="(hh:mm:ss)">
                   <TimePicker
                     onChange={handleDateChange.bind(null, "breakFrequency")}
                     value={new Date(settingsDraft.breakFrequency)}
                     selectAllOnFocus
                     precision={TimePrecision.SECOND}
-                    disabled={!settingsDraft.breaksEnabled}
+                    disabled={
+                      !settingsDraft.breaksEnabled ||
+                      settingsDraft.breaksMode !== BreaksMode.Default
+                    }
                   />
                 </FormGroup>
                 <FormGroup label="Break length" labelInfo="(hh:mm:ss)">
@@ -331,7 +348,8 @@ export default function SettingsEl() {
                       selectAllOnFocus
                       disabled={
                           !settingsDraft.breaksEnabled ||
-                          !settingsDraft.workingHoursEnabled
+                          !settingsDraft.workingHoursEnabled ||
+                          settingsDraft.breaksMode !== BreaksMode.Default
                       }
                   />
                 </FormGroup>
@@ -342,7 +360,8 @@ export default function SettingsEl() {
                       selectAllOnFocus
                       disabled={
                           !settingsDraft.breaksEnabled ||
-                          !settingsDraft.workingHoursEnabled
+                          !settingsDraft.workingHoursEnabled ||
+                          settingsDraft.breaksMode !== BreaksMode.Default
                       }
                   />
                 </FormGroup>
