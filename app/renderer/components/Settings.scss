@@ -1,4 +1,5 @@
 @import "~@blueprintjs/core/lib/scss/variables.scss";
+$settings-header-height: 120px + 50px;
 
 .settings {
   margin: $pt-grid-size * 2;
@@ -11,6 +12,12 @@
 
   .bp3-form-group:last-child {
     margin-bottom: 0;
+  }
+
+  .bp3-tab-panel {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - $settings-header-height - 20px);
   }
 }
 
