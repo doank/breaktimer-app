@@ -1,0 +1,17 @@
+.scheduleWrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  > * {
+    margin-right: 10px;
+  }
+}
+
+.schedulesCard {
+  margin-bottom: 10px;
+}
+
+.addSchedule {
+  display: inline-block;
+}
