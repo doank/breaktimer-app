@@ -23,13 +23,17 @@ export default function ScheduleForm(props: Props): JSX.Element {
                 startTime: new Date(0, 0, 0, 0, 0, 0, 0),
                 endTime: new Date(0, 0, 0, 0, 0, 0, 0)
             };
-            schedules.push(schedule)
-            props.handleSchedulesChange(schedulesSettingsPath, schedules);
+            const newSchedules = Object.assign([], schedules) as Schedule[];
+            newSchedules.push(schedule);
+            props.handleSchedulesChange(schedulesSettingsPath, newSchedules);
         }
     }
 
     const handleScheduleChange = (field: string, index: number, newVal: Date): void => {
-        const schedule = schedules[index];
+        const schedule = Object.assign({}, schedules[index]) as Schedule;
+        if(typeof schedule.startTime === 'string') schedule.startTime = new Date(schedule.startTime);
+        if(typeof schedule.endTime === 'string') schedule.endTime = new Date(schedule.endTime);
+
         (schedule as any)[field] = newVal;
         switch (field) {
             case 'startTime':
@@ -38,19 +42,21 @@ export default function ScheduleForm(props: Props): JSX.Element {
                 }
                 break;
             case 'endTime':
-                if (schedule.startTime < schedule.endTime) {
+                if (schedule.startTime > schedule.endTime) {
                     schedule.startTime = schedule.endTime;
                 }
                 break;
         }
-        const newSchedules = schedules;
+
+        const newSchedules = Object.assign([], schedules) as Schedule[];
         newSchedules[index] = schedule;
         props.handleSchedulesChange(schedulesSettingsPath, newSchedules);
     }
 
     const handleScheduleRemove = (index: number): void => {
-        schedules.splice(index, 1);
-        props.handleSchedulesChange(schedulesSettingsPath, schedules);
+        const newSchedules = Object.assign([], schedules) as Schedule[];
+        newSchedules.splice(index, 1);
+        props.handleSchedulesChange(schedulesSettingsPath, newSchedules);
     }
 
     return (
