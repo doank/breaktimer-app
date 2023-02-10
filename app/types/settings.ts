@@ -5,9 +5,15 @@ export enum NotificationType {
   Popup = "POPUP",
 }
 
+export enum BreaksMode {
+  Default = 'Default',
+  Schedule = 'Schedule',
+}
+
 export interface Settings {
   autoLaunch: boolean;
   breaksEnabled: boolean;
+  breaksMode: string;
   notificationType: NotificationType;
   breakFrequency: Date;
   breakLength: Date;

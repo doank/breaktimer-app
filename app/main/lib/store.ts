@@ -1,11 +1,12 @@
 import Store from "electron-store";
-import { Settings, NotificationType } from "../../types/settings";
+import {Settings, NotificationType, BreaksMode} from "../../types/settings";
 import { setAutoLauch } from "./auto-launch";
 import { initBreaks } from "./breaks";
 
 const defaultSettings: Settings = {
   autoLaunch: true,
   breaksEnabled: true,
+  breaksMode: BreaksMode.Default,
   notificationType: NotificationType.Popup,
   breakFrequency: new Date(0, 0, 0, 0, 28),
   breakLength: new Date(0, 0, 0, 0, 2),
