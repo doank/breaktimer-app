@@ -324,7 +324,28 @@ export default function SettingsEl() {
                     disabled={!settingsDraft.breaksEnabled}
                   />
                 </FormGroup>
-
+                <FormGroup label="Breaks from">
+                  <TimePicker
+                      onChange={handleDateChange.bind(null, "workingHoursFrom")}
+                      value={new Date(settingsDraft.workingHoursFrom)}
+                      selectAllOnFocus
+                      disabled={
+                          !settingsDraft.breaksEnabled ||
+                          !settingsDraft.workingHoursEnabled
+                      }
+                  />
+                </FormGroup>
+                <FormGroup label="Breaks to">
+                  <TimePicker
+                      onChange={handleDateChange.bind(null, "workingHoursTo")}
+                      value={new Date(settingsDraft.workingHoursTo)}
+                      selectAllOnFocus
+                      disabled={
+                          !settingsDraft.breaksEnabled ||
+                          !settingsDraft.workingHoursEnabled
+                      }
+                  />
+                </FormGroup>
                 {
                   ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((dayOfWeek, i) => {
                     return (
