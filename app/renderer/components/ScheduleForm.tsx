@@ -61,7 +61,7 @@ export default function ScheduleForm(props: Props): JSX.Element {
 
   return (
     <>
-      {props.settingsDraft !== null ??
+      {props.settingsDraft !== null ?
         <>
           <Switch
             label={props.dayOfWeek}
@@ -106,6 +106,8 @@ export default function ScheduleForm(props: Props): JSX.Element {
               ''
           }
         </>
+        :
+        ''
       }
     </>
   );
