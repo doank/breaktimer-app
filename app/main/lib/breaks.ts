@@ -1,15 +1,17 @@
-import moment, { Moment } from "moment";
-import { PowerMonitor } from "electron";
-import { Settings, NotificationType } from "../../types/settings";
-import { BreakTime } from "../../types/breaks";
-import { IpcChannel } from "../../types/ipc";
-import { sendIpc } from "./ipc";
-import { getSettings } from "./store";
-import { buildTray } from "./tray";
-import { showNotification } from "./notifications";
-import { createBreakWindows } from "./windows";
+import moment, {Moment} from "moment";
+import {PowerMonitor} from "electron";
+import {Settings, NotificationType, BreaksMode} from "../../types/settings";
+import {BreakTime} from "../../types/breaks";
+import {IpcChannel} from "../../types/ipc";
+import {sendIpc} from "./ipc";
+import {getSettings} from "./store";
+import {buildTray} from "./tray";
+import {showNotification} from "./notifications";
+import {createBreakWindows} from "./windows";
+import {Schedule} from "../../types/schedule";
 
 let powerMonitor: PowerMonitor;
+let nextSchedule: Schedule | null = null;
 let breakTime: BreakTime = null;
 let havingBreak = false;
 let postponedCount = 0;
@@ -23,6 +25,9 @@ export function getBreakTime(): BreakTime {
 
 export function getBreakLength(): Date {
   const settings: Settings = getSettings();
+  if (settings.breaksMode === BreaksMode.Schedule && nextSchedule !== null) {
+    return new Date(0, 0, 0, nextSchedule.endTime.getHours() - nextSchedule.startTime.getHours(), nextSchedule.endTime.getMinutes() - nextSchedule.startTime.getMinutes(), 0);
+  }
   return settings.breakLength;
 }
 
@@ -87,14 +92,66 @@ export function createBreak(isPostpone = false): void {
     postponedCount = 0;
   }
 
-  const freq = new Date(
-    isPostpone ? settings.postponeLength : settings.breakFrequency
-  );
+  switch (settings.breaksMode) {
+    case BreaksMode.Schedule:
+      if (isPostpone) {
+        const freq = new Date(settings.postponeLength);
 
-  breakTime = moment()
-    .add(freq.getHours(), "hours")
-    .add(freq.getMinutes(), "minutes")
-    .add(freq.getSeconds(), "seconds");
+        breakTime = moment()
+          .add(freq.getHours(), "hours")
+          .add(freq.getMinutes(), "minutes")
+          .add(freq.getSeconds(), "seconds");
+        return;
+      }
+
+      let foundNextSchedule = false;
+      const now = moment();
+      const dayString = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const daySchedules = (settings as any)['workingHours' + dayString[now.day() as keyof Days] + 'Schedules'] as Schedule[];
+
+      // Ensure that startTime and endTime is a Date
+      daySchedules.map((schedule) => {
+        if (typeof schedule.startTime === 'string') schedule.startTime = new Date(schedule.startTime);
+        if (typeof schedule.endTime === 'string') schedule.endTime = new Date(schedule.endTime);
+        return schedule;
+      });
+
+      daySchedules.sort((a, b) => {
+        return a.startTime.getTime() - b.startTime.getTime();
+      });
+
+      daySchedules.forEach((schedule) => {
+        if (!foundNextSchedule) {
+          const scheduleStart = moment();
+          scheduleStart.set('hour', schedule.startTime.getHours());
+          scheduleStart.set('minute', schedule.startTime.getMinutes());
+          scheduleStart.set('second', 0);
+
+          const scheduleEnd = moment();
+          scheduleEnd.set('hour', schedule.endTime.getHours());
+          scheduleEnd.set('minute', schedule.endTime.getMinutes());
+          scheduleEnd.set('second', 0);
+
+          if (now < scheduleStart || (now > scheduleStart && now < scheduleEnd)) {
+            nextSchedule = schedule;
+            breakTime = scheduleStart;
+            foundNextSchedule = true;
+          }
+        }
+      });
+      break;
+    default:
+      const freq = new Date(
+        isPostpone ? settings.postponeLength : settings.breakFrequency
+      );
+
+      breakTime = moment()
+        .add(freq.getHours(), "hours")
+        .add(freq.getMinutes(), "minutes")
+        .add(freq.getSeconds(), "seconds");
+      break;
+  }
 
   buildTray();
 }
@@ -151,12 +208,51 @@ export function checkInWorkingHours(): boolean {
   const settings: Settings = getSettings();
 
   if (!settings.workingHoursEnabled) {
-    return true;
+    return false;
   }
 
   const now = moment();
 
-  const days: Days = {
+  const days: Days = getDays();
+
+  const isWorkingDay = days[now.day() as keyof Days];
+
+  if (!isWorkingDay) {
+    return false;
+  }
+
+  switch (settings.breaksMode) {
+    case BreaksMode.Schedule:
+      break;
+    default:
+      let hoursFrom: Date | Moment = new Date(settings.workingHoursFrom);
+      let hoursTo: Date | Moment = new Date(settings.workingHoursTo);
+      hoursFrom = moment()
+        .set("hours", hoursFrom.getHours())
+        .set("minutes", hoursFrom.getMinutes())
+        .set("seconds", 0);
+      hoursTo = moment()
+        .set("hours", hoursTo.getHours())
+        .set("minutes", hoursTo.getMinutes())
+        .set("seconds", 0);
+
+      if (now < hoursFrom) {
+        return false;
+      }
+
+      if (now > hoursTo) {
+        return false;
+      }
+      break;
+  }
+
+  return true;
+}
+
+export function getDays(): Days {
+  const settings: Settings = getSettings();
+
+  return {
     0: settings.workingHoursSunday,
     1: settings.workingHoursMonday,
     2: settings.workingHoursTuesday,
@@ -165,33 +261,6 @@ export function checkInWorkingHours(): boolean {
     5: settings.workingHoursFriday,
     6: settings.workingHoursSaturday,
   };
-
-  const isWorkingDay = days[now.day() as keyof Days];
-
-  if (!isWorkingDay) {
-    return false;
-  }
-
-  let hoursFrom: Date | Moment = new Date(settings.workingHoursFrom);
-  let hoursTo: Date | Moment = new Date(settings.workingHoursTo);
-  hoursFrom = moment()
-    .set("hours", hoursFrom.getHours())
-    .set("minutes", hoursFrom.getMinutes())
-    .set("seconds", 0);
-  hoursTo = moment()
-    .set("hours", hoursTo.getHours())
-    .set("minutes", hoursTo.getMinutes())
-    .set("seconds", 0);
-
-  if (now < hoursFrom) {
-    return false;
-  }
-
-  if (now > hoursTo) {
-    return false;
-  }
-
-  return true;
 }
 
 enum IdleState {

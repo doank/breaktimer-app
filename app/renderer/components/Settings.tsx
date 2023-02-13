@@ -338,7 +338,9 @@ export default function SettingsEl() {
                       null,
                       "workingHoursEnabled"
                     )}
-                    disabled={!settingsDraft.breaksEnabled}
+                    disabled={
+                      !settingsDraft.breaksEnabled
+                    }
                   />
                 </FormGroup>
                 <FormGroup label="Breaks from">
