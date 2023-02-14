@@ -29,6 +29,9 @@ process.once("loaded", () => {
     invokeGongStartPlay: () => {
       return ipcRenderer.invoke("GONG_START_PLAY");
     },
+    invokeSkipBreak: () => {
+      return ipcRenderer.invoke("SKIP_BREAK");
+    },
     invokeSetSettings: (settings) => {
       return ipcRenderer.invoke("SETTINGS_SET", settings);
     },

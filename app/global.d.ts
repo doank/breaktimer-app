@@ -5,6 +5,7 @@ declare const ipcRenderer: {
   invokeGetSettings: () => Promise<unknown>;
   invokeGongEndPlay: () => Promise<unknown>;
   invokeGongStartPlay: () => Promise<unknown>;
+  invokeSkipBreak: () => Promise<void>;
   invokeSetSettings: (settings: unknown) => Promise<void>;
   onPlayEndGong: (cb: () => void) => Promise<void>;
   onPlayStartGong: (cb: () => void) => Promise<void>;

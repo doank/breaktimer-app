@@ -5,6 +5,7 @@ export enum IpcChannel {
   Error = "ERROR",
   GongEndPlay = "GONG_END_PLAY",
   GongStartPlay = "GONG_START_PLAY",
+  SkipBreak = "SKIP_BREAK",
   SettingsGet = "SETTINGS_GET",
   SettingsSet = "SETTINGS_SET",
 }

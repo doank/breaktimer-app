@@ -1,10 +1,10 @@
-import { ipcMain, IpcMainInvokeEvent, BrowserWindow } from "electron";
+import {BrowserWindow, ipcMain, IpcMainInvokeEvent} from "electron";
 import log from "electron-log";
-import { Settings } from "../../types/settings";
-import { IpcChannel } from "../../types/ipc";
-import { getWindows } from "./windows";
-import { getBreakLength, getAllowPostpone, postponeBreak } from "./breaks";
-import { getSettings, setSettings } from "./store";
+import {Settings} from "../../types/settings";
+import {IpcChannel} from "../../types/ipc";
+import {getWindows} from "./windows";
+import {getAllowPostpone, getBreakLength, postponeBreak, skipBreak} from "./breaks";
+import {getSettings, setSettings} from "./store";
 
 export function sendIpc(channel: IpcChannel, ...args: unknown[]): void {
   const windows: BrowserWindow[] = getWindows();
@@ -38,6 +38,11 @@ ipcMain.handle(IpcChannel.GongStartPlay, (): void => {
 ipcMain.handle(IpcChannel.GongEndPlay, (): void => {
   log.info(IpcChannel.GongEndPlay);
   sendIpc(IpcChannel.GongEndPlay);
+});
+
+ipcMain.handle(IpcChannel.SkipBreak, () => {
+  log.info(IpcChannel.SkipBreak);
+  skipBreak();
 });
 
 ipcMain.handle(IpcChannel.SettingsGet, (): Settings => {

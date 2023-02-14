@@ -298,7 +298,8 @@ export default function Break() {
     setClosing(true);
   }, []);
 
-  const handleSkipBreak = React.useCallback(() => {
+  const handleSkipBreak = React.useCallback(async () => {
+    await ipcRenderer.invokeSkipBreak();
     setClosing(true);
   }, []);
 

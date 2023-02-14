@@ -18,6 +18,7 @@ let postponedCount = 0;
 let idleStart: Date | null = null;
 let lockStart: Date | null = null;
 let lastTick: Date | null = null;
+let lastSkippedSchedule: Schedule | null = null;
 
 export function getBreakTime(): BreakTime {
   return breakTime;
@@ -92,18 +93,18 @@ export function createBreak(isPostpone = false): void {
     postponedCount = 0;
   }
 
+  if (isPostpone) {
+    const freq = new Date(settings.postponeLength);
+
+    breakTime = moment()
+      .add(freq.getHours(), "hours")
+      .add(freq.getMinutes(), "minutes")
+      .add(freq.getSeconds(), "seconds");
+    return;
+  }
+
   switch (settings.breaksMode) {
     case BreaksMode.Schedule:
-      if (isPostpone) {
-        const freq = new Date(settings.postponeLength);
-
-        breakTime = moment()
-          .add(freq.getHours(), "hours")
-          .add(freq.getMinutes(), "minutes")
-          .add(freq.getSeconds(), "seconds");
-        return;
-      }
-
       let foundNextSchedule = false;
       const now = moment();
       const dayString = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -134,9 +135,18 @@ export function createBreak(isPostpone = false): void {
           scheduleEnd.set('second', 0);
 
           if (now < scheduleStart || (now > scheduleStart && now < scheduleEnd)) {
-            nextSchedule = schedule;
-            breakTime = scheduleStart;
-            foundNextSchedule = true;
+            if (lastSkippedSchedule === null ||
+              (
+                lastSkippedSchedule &&
+                lastSkippedSchedule.startTime.getTime() !== schedule.startTime.getTime() &&
+                lastSkippedSchedule.endTime.getTime() !== schedule.endTime.getTime()
+              )
+            ) {
+              lastSkippedSchedule = null;
+              nextSchedule = schedule;
+              breakTime = scheduleStart;
+              foundNextSchedule = true;
+            }
           }
         }
       });
@@ -392,4 +402,12 @@ export function initBreaks(): void {
   }
 
   tickInterval = setInterval(tick, 1000);
+}
+
+export function skipBreak(): void {
+  lastSkippedSchedule = nextSchedule;
+  havingBreak = false;
+  breakTime = null;
+  createBreak();
+  buildTray();
 }
