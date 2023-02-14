@@ -303,12 +303,13 @@ export default function Break() {
     setClosing(true);
   }, []);
 
-  const handleEndBreak = React.useCallback(() => {
+  const handleEndBreak = React.useCallback(async () => {
     if (settings?.gongEnabled) {
       // For some reason the end gong sometimes sounds very distorted, so just
       // reuse the start gong.
       ipcRenderer.invokeGongStartPlay();
     }
+    await ipcRenderer.invokeSkipBreak();
     setClosing(true);
   }, [settings]);
 
