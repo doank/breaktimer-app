@@ -184,7 +184,8 @@ export default function SettingsEl() {
                     precision={TimePrecision.SECOND}
                     disabled={
                       !settingsDraft.breaksEnabled ||
-                      settingsDraft.notificationType !== NotificationType.Popup
+                      settingsDraft.notificationType !== NotificationType.Popup ||
+                      settingsDraft.breaksMode !== BreaksMode.Default
                     }
                   />
                 </FormGroup>
