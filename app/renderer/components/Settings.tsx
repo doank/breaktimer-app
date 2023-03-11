@@ -7,6 +7,7 @@ import SettingsHeader from "./SettingsHeader";
 import styles from "./Settings.scss";
 import ScheduleForm from "./ScheduleForm";
 import {Schedule} from "../../types/schedule";
+import {ChangeEvent} from "react";
 
 export default function SettingsEl() {
   const [settingsDraft, setSettingsDraft] = React.useState<Settings | null>(
@@ -108,6 +109,26 @@ export default function SettingsEl() {
     setSettings(settingsDraft);
   };
 
+  const handleFileChange = (field: string, event: ChangeEvent<HTMLInputElement>) => {
+    const files: FileList | null = (event.target as HTMLInputElement).files;
+    if (files && files.length > 0) {
+      const file: File = files[0];
+      const filePath = file.path.replaceAll('\\', '/');
+      setSettingsDraft({
+        ...settingsDraft,
+        [field]: filePath
+      });
+      event.target.value = '';
+    }
+  }
+
+  const handleEmpty = (field: string) => {
+    setSettingsDraft({
+      ...settingsDraft,
+      [field]: ''
+    });
+  }
+
   return (
     <React.Fragment>
       <SettingsHeader
@@ -144,6 +165,24 @@ export default function SettingsEl() {
                       },
                     ]}
                     onChange={handleNotificationTypeChange}
+                    disabled={!settingsDraft.breaksEnabled}
+                  />
+                </FormGroup>
+                <FormGroup label="Background image">
+                  {(settingsDraft.backgroundImage && settingsDraft.backgroundImage !== '') ?
+                    <>
+                      <div className={styles.backgroundImagePreview} style={{backgroundImage: "url('file://" + settingsDraft.backgroundImage + "')"}} title={settingsDraft.backgroundImage}></div>
+                      <div style={{marginBottom: '5px'}}>
+                        <Button onClick={handleEmpty.bind(null, 'backgroundImage')}>Remove image</Button>
+                      </div>
+                    </>
+                    : ''
+                  }
+
+                  <InputGroup
+                    type="file"
+                    accept={"image/png, image/jpeg"}
+                    onChange={handleFileChange.bind(null, 'backgroundImage')}
                     disabled={!settingsDraft.breaksEnabled}
                   />
                 </FormGroup>

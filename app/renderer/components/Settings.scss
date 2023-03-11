@@ -21,6 +21,16 @@ $settings-header-height: 120px + 50px;
   }
 }
 
+.backgroundImagePreview {
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  height: 400px;
+  width: 400px;
+  border-radius: 50%;
+}
+
 .colorPicker {
   width: 100px;
 }

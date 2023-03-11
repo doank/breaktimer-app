@@ -57,6 +57,7 @@ interface BreakProgressProps {
   onEndBreak: () => void;
   settings: Settings;
   textColor: string;
+  backgroundImage: string;
 }
 
 function BreakProgress(props: BreakProgressProps) {
@@ -118,6 +119,12 @@ function BreakProgress(props: BreakProgressProps) {
 
   return (
     <animated.div className={styles.breakProgress} style={fadeIn}>
+      {
+        (props.backgroundImage && props.backgroundImage !== '') ?
+          <div className={styles.backgroundImage} style={{backgroundImage: "url('file://" + props.backgroundImage + "')"}}></div>
+          :
+          ''
+      }
       <OuterSpinner value={progress} textColor={textColor} />
       <div className={styles.progressContent}>
         <h1
@@ -148,6 +155,7 @@ interface BreakCountdownProps {
   postponeBreakEnabled: boolean;
   skipBreakEnabled: boolean;
   textColor: string;
+  backgroundImage: string;
 }
 
 function BreakCountdown(props: BreakCountdownProps) {
@@ -196,6 +204,12 @@ function BreakCountdown(props: BreakCountdownProps) {
 
   return (
     <animated.div className={styles.breakCountdown} style={fadeIn}>
+      {
+        (props.backgroundImage && props.backgroundImage !== '') ?
+          <div className={styles.backgroundImage} style={{backgroundImage: "url('file://" + props.backgroundImage + "')"}}></div>
+          :
+          ''
+      }
       <h2
         className={styles.breakTitle}
         dangerouslySetInnerHTML={{ __html: breakTitle }}
@@ -357,6 +371,7 @@ export default function Break() {
                 }
                 skipBreakEnabled={settings.skipBreakEnabled}
                 textColor={settings.textColor}
+                backgroundImage={settings.backgroundImage}
               />
             ) : (
               <BreakProgress
@@ -365,6 +380,7 @@ export default function Break() {
                 onEndBreak={handleEndBreak}
                 settings={settings}
                 textColor={settings.textColor}
+                backgroundImage={settings.backgroundImage}
               />
             )}
           </>

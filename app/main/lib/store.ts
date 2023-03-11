@@ -43,6 +43,7 @@ const defaultSettings: Settings = {
   endBreakEnabled: true,
   skipBreakEnabled: false,
   postponeBreakEnabled: true,
+  backgroundImage: ''
 };
 
 const store = new Store<{

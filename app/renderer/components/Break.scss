@@ -36,6 +36,19 @@
   }
 }
 
+.backgroundImage {
+  display: block;
+  position: absolute;
+  background-size: cover;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  z-index: -1;
+}
+
 .background {
   position: absolute;
   top: 0;

@@ -50,4 +50,5 @@ export interface Settings {
   endBreakEnabled: boolean;
   skipBreakEnabled: boolean;
   postponeBreakEnabled: boolean;
+  backgroundImage: string;
 }
