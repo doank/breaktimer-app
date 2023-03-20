@@ -35,6 +35,12 @@ process.once("loaded", () => {
     invokeSetSettings: (settings) => {
       return ipcRenderer.invoke("SETTINGS_SET", settings);
     },
+    invokeIsRequireAppRestart: () => {
+      return ipcRenderer.invoke("REQUIRE_APP_RESTART");
+    },
+    invokeSetRequireAppRestart: () => {
+      return ipcRenderer.invoke("SET_REQUIRE_APP_RESTART");
+    },
     onPlayEndGong: (cb) => {
       ipcRenderer.on("GONG_END_PLAY", cb);
     },

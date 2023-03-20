@@ -4,7 +4,7 @@ import {Settings} from "../../types/settings";
 import {IpcChannel} from "../../types/ipc";
 import {getWindows} from "./windows";
 import {getAllowPostpone, getBreakLength, postponeBreak, skipBreak} from "./breaks";
-import {getSettings, setSettings} from "./store";
+import {getSettings, isRequireAppRestart, setRequireAppRestart, setSettings} from "./store";
 
 export function sendIpc(channel: IpcChannel, ...args: unknown[]): void {
   const windows: BrowserWindow[] = getWindows();
@@ -61,4 +61,14 @@ ipcMain.handle(
 ipcMain.handle(IpcChannel.BreakLengthGet, (): Date => {
   log.info(IpcChannel.BreakLengthGet);
   return getBreakLength();
+});
+
+ipcMain.handle(IpcChannel.SetRequireAppRestart, (): void => {
+  log.info(IpcChannel.SetRequireAppRestart);
+  setRequireAppRestart();
+});
+
+ipcMain.handle(IpcChannel.RequireAppRestart, (): boolean => {
+  log.info(IpcChannel.RequireAppRestart);
+  return isRequireAppRestart();
 });

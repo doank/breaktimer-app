@@ -7,6 +7,8 @@ declare const ipcRenderer: {
   invokeGongStartPlay: () => Promise<unknown>;
   invokeSkipBreak: () => Promise<void>;
   invokeSetSettings: (settings: unknown) => Promise<void>;
+  invokeSetRequireAppRestart: () => Promise<unknown>;
+  invokeIsRequireAppRestart: () => Promise<boolean>;
   onPlayEndGong: (cb: () => void) => Promise<void>;
   onPlayStartGong: (cb: () => void) => Promise<void>;
 };

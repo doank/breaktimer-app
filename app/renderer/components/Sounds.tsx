@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Howl } from "howler";
+import {Settings} from "../../types/settings";
 
 export default function Sounds() {
   const playSound = (path: string): void => {
@@ -8,12 +9,15 @@ export default function Sounds() {
   };
 
   React.useEffect(() => {
-    ipcRenderer.onPlayStartGong(() => {
-      playSound("../../renderer/sounds/gong_start.wav");
-    });
-    ipcRenderer.onPlayEndGong(() => {
-      playSound("../../renderer/sounds/gong_end.wav");
-    });
+    (async () => {
+      const settings = (await ipcRenderer.invokeGetSettings()) as Settings;
+      ipcRenderer.onPlayStartGong(() => {
+        playSound(settings.gongStartPath);
+      });
+      ipcRenderer.onPlayEndGong(() => {
+        playSound(settings.gongEndPath);
+      });
+    })();
   }, []);
 
   return null;

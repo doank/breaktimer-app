@@ -14,10 +14,14 @@ export default function SettingsEl() {
     null
   );
   const [settings, setSettings] = React.useState<Settings | null>(null);
+  const [modifiedFields, setModifiedField] = React.useState<string[]>([]);
+  const [isRequireAppRestart, setRequireAppRestart] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     (async () => {
       const settings = (await ipcRenderer.invokeGetSettings()) as Settings;
+      const restart = (await ipcRenderer.invokeIsRequireAppRestart()) as boolean;
+      setRequireAppRestart(restart);
       setSettingsDraft(settings);
       setSettings(settings);
     })();
@@ -107,6 +111,11 @@ export default function SettingsEl() {
     await ipcRenderer.invokeSetSettings(settingsDraft);
     toast("Settings saved", Intent.PRIMARY);
     setSettings(settingsDraft);
+    const regex = new RegExp(['gongStartPath', 'gongEndPath'].join('|'), 'gi');
+    if(regex.test(modifiedFields.join(' '))) {
+      ipcRenderer.invokeSetRequireAppRestart();
+      setRequireAppRestart(true);
+    }
   };
 
   const handleFileChange = (field: string, event: ChangeEvent<HTMLInputElement>) => {
@@ -119,14 +128,16 @@ export default function SettingsEl() {
         [field]: filePath
       });
       event.target.value = '';
+      setModifiedField([...modifiedFields, field]);
     }
   }
 
-  const handleEmpty = (field: string) => {
+  const handleReset = (field: string, value: any) => {
     setSettingsDraft({
       ...settingsDraft,
-      [field]: ''
+      [field]: value
     });
+    setModifiedField([...modifiedFields, field]);
   }
 
   return (
@@ -137,6 +148,11 @@ export default function SettingsEl() {
         showSave={dirty}
         textColor={settingsDraft.textColor}
       />
+      {
+        isRequireAppRestart ?
+            <div className={styles.appRestartMsg}><b>Please restart the application !</b></div>
+            : ''
+      }
       <main className={styles.settings}>
         <FormGroup>
           <Switch
@@ -165,24 +181,6 @@ export default function SettingsEl() {
                       },
                     ]}
                     onChange={handleNotificationTypeChange}
-                    disabled={!settingsDraft.breaksEnabled}
-                  />
-                </FormGroup>
-                <FormGroup label="Background image">
-                  {(settingsDraft.backgroundImage && settingsDraft.backgroundImage !== '') ?
-                    <>
-                      <div className={styles.backgroundImagePreview} style={{backgroundImage: "url('file://" + settingsDraft.backgroundImage + "')"}} title={settingsDraft.backgroundImage}></div>
-                      <div style={{marginBottom: '5px'}}>
-                        <Button onClick={handleEmpty.bind(null, 'backgroundImage')}>Remove image</Button>
-                      </div>
-                    </>
-                    : ''
-                  }
-
-                  <InputGroup
-                    type="file"
-                    accept={"image/png, image/jpeg"}
-                    onChange={handleFileChange.bind(null, 'backgroundImage')}
                     disabled={!settingsDraft.breaksEnabled}
                   />
                 </FormGroup>
@@ -361,6 +359,61 @@ export default function SettingsEl() {
                 </FormGroup>
                 <FormGroup>
                   <Button onClick={handleResetColors}>Reset colors</Button>
+                </FormGroup>
+                <FormGroup label="Background image">
+                  {(settingsDraft.backgroundImage && settingsDraft.backgroundImage !== '') ?
+                    <>
+                      <div className={styles.backgroundImagePreview} style={{backgroundImage: "url('file://" + settingsDraft.backgroundImage + "')"}} title={settingsDraft.backgroundImage}></div>
+                      <div style={{marginBottom: '5px'}}>
+                        <Button onClick={handleReset.bind(null, 'backgroundImage', '')}>Reset</Button>
+                      </div>
+                    </>
+                    : ''
+                  }
+                  <InputGroup
+                    type="file"
+                    accept={"image/png, image/jpeg"}
+                    onChange={handleFileChange.bind(null, 'backgroundImage')}
+                    disabled={!settingsDraft.breaksEnabled}
+                  />
+                </FormGroup>
+                <FormGroup label="Gong start (application restart required)">
+                  {(settingsDraft.gongStartPath && settingsDraft.gongStartPath !== '../../renderer/sounds/gong_start.wav') ?
+                    <>
+                      <audio controls title={settingsDraft.gongStartPath}>
+                        <source src={settingsDraft.gongStartPath}/>
+                      </audio>
+                      <div style={{marginBottom: '5px'}}>
+                        <Button onClick={handleReset.bind(null, 'gongStartPath', '../../renderer/sounds/gong_start.wav')}>Reset</Button>
+                      </div>
+                    </>
+                    : ''
+                  }
+                  <InputGroup
+                    type="file"
+                    accept={"audio/mpeg, audio/ogg"}
+                    onChange={handleFileChange.bind(null, 'gongStartPath')}
+                    disabled={!settingsDraft.breaksEnabled}
+                  />
+                </FormGroup>
+                <FormGroup label="Gong end (application restart required)">
+                  {(settingsDraft.gongEndPath && settingsDraft.gongEndPath !== '../../renderer/sounds/gong_start.wav') ?
+                    <>
+                      <audio controls title={settingsDraft.gongEndPath}>
+                        <source src={settingsDraft.gongEndPath}/>
+                      </audio>
+                      <div style={{marginBottom: '5px'}}>
+                        <Button onClick={handleReset.bind(null, 'gongEndPath', '../../renderer/sounds/gong_start.wav')}>Reset</Button>
+                      </div>
+                    </>
+                    : ''
+                  }
+                  <InputGroup
+                    type="file"
+                    accept={"audio/mpeg, audio/ogg"}
+                    onChange={handleFileChange.bind(null, 'gongEndPath')}
+                    disabled={!settingsDraft.breaksEnabled}
+                  />
                 </FormGroup>
               </React.Fragment>
             }

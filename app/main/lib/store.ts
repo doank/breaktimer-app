@@ -33,6 +33,8 @@ const defaultSettings: Settings = {
   idleResetLength: new Date(0, 0, 0, 0, 5),
   idleResetNotification: false,
   gongEnabled: true,
+  gongStartPath: '../../renderer/sounds/gong_start.wav',
+  gongEndPath: '../../renderer/sounds/gong_start.wav',
   breakTitle: "Time for a break!",
   breakMessage: "Rest your eyes. Stretch your legs. Breathe. Relax.",
   backgroundColor: "#16a085",
@@ -49,10 +51,12 @@ const defaultSettings: Settings = {
 const store = new Store<{
   settings: Settings;
   appInitialized: boolean;
+  requireAppRestart: boolean;
 }>({
   defaults: {
     settings: defaultSettings,
     appInitialized: false,
+    requireAppRestart: false,
   },
 });
 
@@ -80,6 +84,18 @@ export function getAppInitialized(): boolean {
 
 export function setAppInitialized(): void {
   store.set({ appInitialized: true });
+}
+
+export function initializeRequireAppRestart(): void {
+  store.set({requireAppRestart: false});
+}
+
+export function setRequireAppRestart(): void {
+  store.set({requireAppRestart: true});
+}
+
+export function isRequireAppRestart(): boolean {
+  return store.get("requireAppRestart") as boolean;
 }
 
 export function setBreaksEnabled(breaksEnabled: boolean): void {

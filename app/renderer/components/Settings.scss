@@ -34,3 +34,10 @@ $settings-header-height: 120px + 50px;
 .colorPicker {
   width: 100px;
 }
+
+.appRestartMsg {
+  background-color: red;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}

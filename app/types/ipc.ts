@@ -8,4 +8,6 @@ export enum IpcChannel {
   SkipBreak = "SKIP_BREAK",
   SettingsGet = "SETTINGS_GET",
   SettingsSet = "SETTINGS_SET",
+  SetRequireAppRestart = "SET_REQUIRE_APP_RESTART",
+  RequireAppRestart = "REQUIRE_APP_RESTART",
 }

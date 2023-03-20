@@ -5,7 +5,7 @@ import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import { initBreaks } from "./lib/breaks";
 import {
-  getAppInitialized,
+  getAppInitialized, initializeRequireAppRestart,
   setAppInitialized,
   setBreaksEnabled,
 } from "./lib/store";
@@ -84,6 +84,7 @@ app.on("ready", async () => {
   }
 
   const appInitialized = getAppInitialized();
+  initializeRequireAppRestart();
 
   if (!appInitialized) {
     setAutoLauch(true);

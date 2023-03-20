@@ -319,9 +319,7 @@ export default function Break() {
 
   const handleEndBreak = React.useCallback(async () => {
     if (settings?.gongEnabled) {
-      // For some reason the end gong sometimes sounds very distorted, so just
-      // reuse the start gong.
-      ipcRenderer.invokeGongStartPlay();
+      ipcRenderer.invokeGongEndPlay();
     }
     await ipcRenderer.invokeSkipBreak();
     setClosing(true);

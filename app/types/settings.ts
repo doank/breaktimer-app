@@ -40,6 +40,8 @@ export interface Settings {
   idleResetLength: Date;
   idleResetNotification: boolean;
   gongEnabled: boolean;
+  gongStartPath: string;
+  gongEndPath: string;
   breakTitle: string;
   breakMessage: string;
   backgroundColor: string;
